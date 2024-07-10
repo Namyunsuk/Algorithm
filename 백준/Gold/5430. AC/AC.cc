@@ -1,80 +1,74 @@
 #include <bits/stdc++.h>
-
 using namespace std;
 
-void parse(deque<int>& DQ, string& numbers) {
-    int num = 0;
-    for (int i = 1; i < numbers.size()-1; i++) {
-        if (numbers[i] == ',') {
-            DQ.push_back(num);
-            num = 0;
-        }
-        else {
-            num = num * 10 + (numbers[i] - '0');
-        }
-    }
-    if (num != 0) {
+void parseNumbers(string &numbers, deque<int> &DQ){
+    int num=0;
+    for(auto value : numbers){
+      if(value=='[') continue;
+      if(value==','||value==']'){
+        if(num==0) continue;
         DQ.push_back(num);
+        num=0;
+        continue;
+      }
+      num = num*10 + (value-'0');
     }
 }
 
-void printResult(deque<int>& DQ, int rev) {
-    cout << "[";
-    if (rev) {
-        for (int i = DQ.size()-1; i >=0; i--) {
-            if (i == 0) {
-                cout << DQ[i];
-            }
-            else cout << DQ[i] << ",";
-        }
-    }
-    else {
-        for (int i = 0; i < DQ.size(); i++) {
-            if (i == DQ.size() - 1) {
-                cout << DQ[i];
-            }
-            else cout << DQ[i] << ",";
-        }
-    }
-    cout << "]\n";
+void printResult(deque<int> &DQ){
+  cout <<"[";
+  while(true){
+    if(!DQ.size()) break;
+    cout<<DQ.front();
+    DQ.pop_front();
+    if(!DQ.size()) break;
+    cout<<",";
+  }
+  cout<<"]\n";
 }
 
-int main(int argc, char** argv) {
-    ios::sync_with_stdio(0);
-    cin.tie(0);
 
+int main(void) {
+  ios::sync_with_stdio(0);
+  cin.tie(0);
+  
+  int T, n;
+  bool flag=true, error=false;
+  string query, numbers;
+
+  cin >>T;
+
+  while(T--){
     deque<int> DQ;
-    int t, n, rev, err;
-    string p, numbers;
+    cin >> query;
+    cin >> n;
+    cin >> numbers;
+    parseNumbers(numbers, DQ);
 
-    cin >> t;
-    while (t--) {
-        rev = 0;
-        err = 0;
-        cin >> p;
-        cin >> n;
-        cin >> numbers;
-        parse(DQ, numbers);
-        
-        for (int i = 0; i < p.size(); i++) {
-            if (p[i] == 'R') {
-                if (rev == 0) rev = 1;
-                else rev = 0;
-            }
-            else {
-                if (DQ.empty()) {
-                    cout << "error\n";
-                    err = 1;
-                    break;
-                }
-                if (rev) DQ.pop_back();
-                else DQ.pop_front();
-            }
+    for(auto op : query){
+      if(op=='R') flag = !flag;
+      else if(op=='D'){
+        if(!DQ.size()) { // 빈 경우
+          cout<<"error\n";
+          error = true;
+          break;
         }
-        if(!err)
-            printResult(DQ, rev);
-        DQ.clear();
+        else if(flag){ // 안뒤집힘
+          DQ.pop_front();
+        }
+        else{
+          DQ.pop_back();
+        }
+      }
     }
-   
-    return 0;
+    if(!error){
+      if(!flag){
+        reverse(DQ.begin(), DQ.end());
+      }
+      printResult(DQ);
+    }
+    error = false; // error여부 초기화
+    flag=true; //flag초기화
+  }
 }
+
