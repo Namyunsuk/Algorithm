@@ -1,44 +1,46 @@
 #include <bits/stdc++.h>
-
 using namespace std;
 
-int main(int argc, char** argv) {
-    ios::sync_with_stdio(0);
-    cin.tie(0);
 
-    deque<int> DQ;
-    int n, m, num, result=0;
+int main(void) {
+  ios::sync_with_stdio(0);
+  cin.tie(0);
+  
+  deque<int> DQ;
+  int n, m, num, ans=0;
+  cin >> n >> m;
 
-    cin >> n >> m;
-    for (int i = 1; i <= n; i++) {
-        DQ.push_back(i);
-    }
+  for(int i=1; i<=n;i++){
+    DQ.push_back(i);
+  }
 
-    
-    while (m--) {
-        cin >> num;
-        if (num != DQ.front()) {
-            int idx = find(DQ.begin(), DQ.end(), num)-DQ.begin();
-            if (idx+1 <= (DQ.size() + 1) / 2) {
-                while (DQ.front() != num) {
-                    DQ.push_back(DQ.front());
-                    DQ.pop_front();
-                    result++;
-                }
-            }
-            else {
-                while (DQ.front() != num) {
-                    DQ.push_front(DQ.back());
-                    DQ.pop_back();
-                    result++;
-                }
-            }
-        }
-        
+  while(m--){
+    cin >> num;
+
+    if(DQ.front()==num){
         DQ.pop_front();
+        continue;
     }
-    
-    cout << result;
-   
-    return 0;
+
+    int idx = find(DQ.begin(), DQ.end(), num) - DQ.begin();
+
+    while(DQ.front() != num){
+      if(idx <= DQ.size() - idx){ // left
+          int tmp = DQ.front();
+           DQ.pop_front();
+           DQ.push_back(tmp);
+           ans++;
+      }
+      else{
+        int tmp = DQ.back();
+        DQ.pop_back();
+        DQ.push_front(tmp);
+        ans++;
+      }
+    }
+
+    DQ.pop_front();
+  }
+
+  cout << ans;
 }
