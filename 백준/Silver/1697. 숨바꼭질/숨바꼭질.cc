@@ -1,7 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-int board[100002];
+int board[100001];
 
 int main(void) {
   ios::sync_with_stdio(0);
@@ -21,7 +21,7 @@ int main(void) {
     for(auto nx: {cur-1, cur+1, cur*2}){
 
       if(nx<0 || nx>100000) continue;
-      if(board[nx] != -1) continue;
+      if(board[nx]!=-1) continue;
       board[nx] = board[cur] + 1;
       Q.push(nx);
     }
