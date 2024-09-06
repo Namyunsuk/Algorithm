@@ -1,49 +1,51 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-int arr[100005];
-int n;
-int state[100005]; 
+#define X first
+#define Y second
 
-const int NOT_VISITED = 0;
-const int CYCLE_IN = -1;
+int arr[100001];
+int vis[100001];
 
-void run(int x){
-  int cur = x;
+void solve(int idx){
+  int cur = idx;
   while(true){
-    state[cur] = x;
+    vis[cur] = idx;
     cur = arr[cur];
-    // 이번 방문에서 지나간 학생에 도달했을 경우
-    if(state[cur] == x){
-      while(state[cur] != CYCLE_IN){
-        state[cur] = CYCLE_IN;
+    if(vis[cur]==idx){
+      while(vis[cur]!=-1){
+        vis[cur] = -1;
         cur = arr[cur];
       }
       return;
     }
-    // 이전 방문에서 지나간 학생에 도달했을 경우
-    else if(state[cur] != 0) return;
+    else if(vis[cur]!=0) return;
   }
 }
 
-int main(void){
+int main(void) {
   ios::sync_with_stdio(0);
   cin.tie(0);
-  int t;
-  cin >> t;
-  while(t--){
+
+  int T,n;
+  cin >> T;
+
+  while(T--){
     cin >> n;
-    fill(state+1, state+n+1, 0);
-    for(int i = 1; i <= n; i++)
+    fill(vis+1, vis+n+1, 0);
+    int ans=0;
+    for(int i=1; i<= n; i++){
       cin >> arr[i];
-    int ans = 0;
-    for(int i = 1; i <= n; i++){
-      if(state[i] == NOT_VISITED) run(i);
     }
-    int cnt = 0;
-    for(int i = 1; i <= n; i++){
-      if(state[i] != CYCLE_IN) cnt++;
+
+    for(int i=1; i<= n; i++){
+      if(vis[i]==0) solve(i);
     }
-    cout << cnt << '\n';
+
+    for(int i=1; i<=n;i++){
+      if(vis[i]!=-1) ans++;
+    }
+    cout << ans << "\n";
   }
+
 }
