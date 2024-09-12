@@ -11,10 +11,6 @@ int arr[100003];
 int n, k;
 queue<int> Q;
 
-bool isTeleporting(int cur, int idx){
-  return cur*2 == idx;
-}
-
 void teleport(int num){
   int tmp = num;
     while(true){
