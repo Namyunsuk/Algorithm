@@ -16,12 +16,9 @@ fun main() {
     }
 
     var ans = 0L
-
     for(i in 0 .. 9){
-        if(n==1 && i==0) continue
         ans += dp[n][i]
     }
 
     println(ans%1000000000)
-
 }
