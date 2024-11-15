@@ -1,6 +1,5 @@
 val vis = Array(102) { false }
 val arr = mutableListOf<Int>()
-var cnt = 0
 var ans = mutableListOf<Int>()
 
 fun main() = with(System.`in`.bufferedReader()) {
@@ -17,14 +16,13 @@ fun main() = with(System.`in`.bufferedReader()) {
     }
 
     ans.sortBy { it }
-    println(cnt)
+    println(ans.size)
     ans.forEach{println(it)}
 }
 
 fun dfs(start: Int, des: Int) {
     if (start == des) {
         ans.add(des)
-        cnt++
         return
     }
     if (vis[start]) return
