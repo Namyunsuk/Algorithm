@@ -1,7 +1,3 @@
-import java.util.*
-
-data class Pos(val x: Int, val y: Int)
-
 lateinit var vis: Array<Int>
 var ans = 0
 
