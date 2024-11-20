@@ -13,24 +13,21 @@ fun main(): Unit = with(System.`in`.bufferedReader()) {
         arr[i] = v
     }
 
-    dfs(0, mutableListOf(), n, s)
+    dfs(0, 0, 0, n, s)
 
     print(cnt)
 }
 
-fun dfs(index: Int, nums: MutableList<Int>, n: Int, s: Int) {
-    if (nums.sum() == s && nums.size != 0) {
+fun dfs(index: Int, sum: Int, size: Int, n: Int, s: Int) {
+    if (sum == s && size != 0) {
         cnt++
     }
-
-    if (nums.size == n) return
+    if (size == n) return
 
     for (i in index..<n) {
         if (vis[i]) continue
         vis[i] = true
-        nums.add(arr[i])
-        dfs(i, nums, n, s)
-        nums.removeLast()
+        dfs(i, sum + arr[i], size + 1, n, s)
         vis[i] = false
     }
 }
