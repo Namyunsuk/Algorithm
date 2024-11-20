@@ -1,5 +1,4 @@
 lateinit var arr: Array<Int>
-lateinit var vis: Array<Boolean>
 
 var cnt = 0
 
@@ -7,27 +6,23 @@ fun main(): Unit = with(System.`in`.bufferedReader()) {
     val (n, s) = readLine().split(" ").map { it.toInt() }
     val input = readLine().split(" ").map { it.toInt() }
     arr = Array(n) { 0 }
-    vis = Array(n) { false }
 
     input.forEachIndexed { i, v ->
         arr[i] = v
     }
 
-    dfs(0, 0, 0, n, s)
+    dfs(0, 0, n, s)
 
+    if (s == 0) cnt--  // 공집합 제외(모든 숫자를 더하지 않는 경우)
     print(cnt)
 }
 
-fun dfs(index: Int, sum: Int, size: Int, n: Int, s: Int) {
-    if (sum == s && size != 0) {
-        cnt++
+fun dfs(i: Int, sum: Int, n: Int, s: Int) {
+    if (i == n) {
+        if (sum == s) cnt++
+        return
     }
-    if (size == n) return
 
-    for (i in index..<n) {
-        if (vis[i]) continue
-        vis[i] = true
-        dfs(i, sum + arr[i], size + 1, n, s)
-        vis[i] = false
-    }
+    dfs(i + 1, sum + arr[i], n, s)
+    dfs(i + 1, sum, n, s)
 }
