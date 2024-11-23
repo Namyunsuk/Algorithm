@@ -15,7 +15,7 @@ fun main(): Unit = with(System.`in`.bufferedReader()) {
     var count = 10
 
     while (!q.isEmpty()) {
-        var cur = q.poll()
+        val cur = q.poll()
         for (i in 0..<cur%10) {
             val num = cur * 10 + i
             count++
