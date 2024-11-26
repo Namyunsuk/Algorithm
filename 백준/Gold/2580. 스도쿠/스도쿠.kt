@@ -13,15 +13,12 @@ fun main(): Unit = with(System.`in`.bufferedReader()) {
         }
     }
 
-    dfs(mutableListOf(), blanks.size)
+    dfs(0, blanks.size)
 }
 
-fun dfs(nums: MutableList<Int>, desCnt: Int) {
+fun dfs(cnt: Int, desCnt: Int) {
     if (flag) return
-    if (nums.size == desCnt) {
-//        blanks.forEachIndexed { i, v ->
-//            board[v.x][v.y] = nums[i]
-//        }
+    if (cnt == desCnt) {
         board.forEach { row ->
             row.forEach {
                 print("$it ")
@@ -33,13 +30,11 @@ fun dfs(nums: MutableList<Int>, desCnt: Int) {
     }
 
     for (i in 1..9) {
-        val blank = blanks[nums.size]
+        val blank = blanks[cnt]
         if (!isValidNum(blank.x, blank.y, i)) continue
-        nums.add(i)
         board[blank.x][blank.y] = i
-        dfs(nums, desCnt)
+        dfs(cnt + 1, desCnt)
         board[blank.x][blank.y] = 0
-        nums.removeLast()
     }
 }
 
