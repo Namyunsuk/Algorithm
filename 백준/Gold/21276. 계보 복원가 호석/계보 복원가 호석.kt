@@ -55,6 +55,7 @@ fun main(): Unit = with(System.`in`.bufferedReader()) {
 
     for (people in peoples) {
         val res = result[people]!!
+        res.sort()
         print("$people ${res.size} ")
         res.forEach { print("$it ") }
         println()
