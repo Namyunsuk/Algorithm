@@ -1,37 +1,35 @@
-import java.util.*
+const val INF = 1e9.toInt()
 
-fun main() = with(System.`in`.bufferedReader()) {
+val graph = Array(401) { Array(401) { INF } }
+val sb = StringBuilder()
+
+fun main(): Unit = with(System.`in`.bufferedReader()) {
     val (n, k) = readLine().split(" ").map { it.toInt() }
 
-    val arr = Array(n + 1) { Array(n + 1) { 987654321 } }
-
-    repeat(k) {
-        val st = StringTokenizer(readLine())
-        val from = st.nextToken().toInt()
-        val to = st.nextToken().toInt()
-        arr[from][to] = 1
+    repeat(n) {
+        graph[it + 1][it + 1] = 0
     }
 
-    for (k in 1..n) {
-        for (i in 1..n) {
-            for (j in 1..n) {
-                if (arr[i][j] > arr[i][k] + arr[k][j]) {
-                    arr[i][j] = arr[i][k] + arr[k][j]
-                }
+    repeat(k) {
+        val (u, v) = readLine().split(" ").map { it.toInt() }
+        graph[u][v] = 0
+    }
+
+    for (v in 1..n) {
+        for (s in 1..n) {
+            for (e in 1..n) {
+                if (graph[s][e] > graph[s][v] + graph[v][e])
+                    graph[s][e] = graph[s][v] + graph[v][e]
             }
         }
     }
 
-    val sb = StringBuilder()
-    repeat(readLine().toInt()) {
-        val st = StringTokenizer(readLine())
-        val from = st.nextToken().toInt()
-        val to = st.nextToken().toInt()
-        
-        if (arr[from][to] == arr[to][from]) sb.append("0")
-        else if (arr[from][to] > arr[to][from]) sb.append("1")
-        else sb.append("-1")
-        sb.append("\n")
+    val m = readLine().toInt()
+    repeat(m) {
+        val (u, v) = readLine().split(" ").map { it.toInt() }
+        if (graph[u][v] != INF) sb.appendLine(-1)
+        else if (graph[v][u] != INF) sb.appendLine(1)
+        else sb.appendLine(0)
     }
 
     print(sb)
