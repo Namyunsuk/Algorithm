@@ -1,55 +1,71 @@
 import java.util.*
 
-val graph = Array<MutableList<Int>>(1000002){mutableListOf()}
-val nodeInCount = Array<Int>(1000002){0}
-val nodeOutCount = Array<Int>(1000002){0}
+val graph = Array(1000001){mutableListOf<Int>()}
+val inCount =  Array(1000001){0}
+val outCount =  Array(1000001){0}
+val vis = Array(1000001){false}
+val q = LinkedList<Int>()
+var created = 0
+var donut = 0
+var stick = 0
+var eight = 0
 
 class Solution {
     fun solution(edges: Array<IntArray>): IntArray {
-        var answer = IntArray(4)
+        var answer = mutableListOf<Int>()
         
-        edges.forEach{ (start, end)->
-            graph[start].add(end)
-            nodeInCount[end]++
-            nodeOutCount[start]++
+        edges.forEach{
+            val a = it[0]
+            val b = it[1]
+            graph[a].add(b)
+            outCount[a]++
+            inCount[b]++
         }
         
-        for(i in 0..1000001){
-            if(nodeInCount[i]==0 && nodeOutCount[i]>=2){
-                answer[0] = i
+        for(i in 1..1000000){   // 생성정점 찾기
+            if(inCount[i]==0&&outCount[i]>=2) {
+                created = i
+                vis[i] = true
                 break
             }
         }
-        
-        graph[answer[0]].forEach{node->
-            answer[bfs(node)]++
-        }
-        
-        return answer
-    }
-    
-    fun bfs(start:Int):Int{
-        val q = LinkedList<Int>()
-        q.offer(start)
-        var n = 0
-        
-        while(!q.isEmpty()){
-            val cur  = q.poll()
-            n++
-            if(cur == start && n>1){ // 제일 처음에 걸리는 것 방지 위해 n>1조건 삽입
-                return 1
-            }
-            graph[cur].forEach{it->
-                if(graph[it].size==2) return 3
-                q.offer(it)
+
+        graph[created].forEach{ v ->
+            vis[v] = true
+            if(inCount[v]>=2 && outCount[v]>=2){ // 8자
+                eight++
+            }else{ // donut or stick
+                bfs(v)
             }
         }
-        return 2
+        
+        answer.add(created)
+        answer.add(donut)
+        answer.add(stick)
+        answer.add(eight)
+        return answer.toIntArray()
     }
 }
 
 
-// 나가는 엣지 존재, 들어오는거 X
-// 도넛: 나에게 돌아옴 다시
-// 막대: 안돌아옴
-// 8: 들어오는거 존재하면서 나가는거 2개 존재
+fun bfs(start:Int){
+    q.offer(start)
+    while(!q.isEmpty()){
+        val cur = q.poll()
+        if(outCount[cur]==0){
+            stick++
+            break
+        }
+        val next = graph[cur].get(0)
+        if(inCount[next]>=2 && outCount[next]>=2){
+            eight++
+            break
+        }
+        if(vis[next]){
+            donut++
+            break
+        }
+        vis[next]=true
+        q.offer(next)
+    }
+}
