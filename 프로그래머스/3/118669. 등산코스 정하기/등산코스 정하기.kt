@@ -53,7 +53,7 @@ class Solution {
 fun dijkstra(){
     while(!pq.isEmpty()){
         val cur = pq.poll()
-        if(d[cur.node] < cur.weight) continue
+        if(d[cur.node] != cur.weight) continue
         graph[cur.node].forEach{
             val weight = maxOf(it.weight, d[cur.node])
             if(weight < d[it.node]){
