@@ -82,27 +82,11 @@ public class Main{
 		printSantaScore();
 	}
 
-	private static void printSantaGraph() {
-		for(int i=1;i<=n;i++) {
-			for(int j=1;j<=n;j++) {
-				if(rudolphGraph[i][j]==RUDOLPH) {
-					System.out.printf("%d ", rudolphGraph[i][j]);
-					continue;
-				}
-				System.out.printf("%d ", santaGraph[i][j]);
-			}
-			System.out.println();
-		}
-		System.out.println();
-	}
-
 	static void printSantaScore() {
 		for(int i=1;i<=p;i++) {
 			Santa santa = santas[i];
 			System.out.printf("%d ", santa.score);
 		}
-		System.out.println();
-		System.out.println();
 	}
 	
 	static void plusTurnScore() {
