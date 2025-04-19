@@ -1,30 +1,33 @@
-import kotlin.math.*
 import java.util.*
 
-val p1 = mutableListOf(1,2,3,4,5) // 5
-var p1_score = 0
-val p2 = mutableListOf(2, 1, 2, 3, 2, 4, 2, 5) // 8
-var p2_score = 0
-val p3 = mutableListOf(3, 3, 1, 1, 2, 2, 4, 4, 5, 5) // 10
-var p3_score = 0
+val p1 = listOf(1,2,3,4,5) // 5
+val p2 = listOf(2,1,2,3,2,4,2,5) // 8
+val p3 = listOf(3,3,1,1,2,2,4,4,5,5) // 10
+
+var p1Score = 0
+var p2Score = 0
+var p3Score = 0
 
 class Solution {
     fun solution(answers: IntArray): IntArray {
         var answer = mutableListOf<Int>()
-        var max_score = 0
         
-        for(i in answers.indices){
-            if(answers[i] == p1[i%5]) p1_score++
-            if(answers[i] == p2[i%8]) p2_score++
-            if(answers[i] == p3[i%10]) p3_score++
+        for(i in 0 until answers.size){
+            val answer = answers[i]
+            val p1Index = i%5
+            val p2Index = i%8
+            val p3Index = i%10
+            
+            if(answer == p1[p1Index]) p1Score++
+            if(answer == p2[p2Index]) p2Score++
+            if(answer == p3[p3Index]) p3Score++
         }
         
-        max_score = max(p1_score, p2_score)
-        max_score = max(max_score, p3_score)
+        val maxV = maxOf(p1Score, p2Score, p3Score)
         
-        if(p1_score == max_score) answer.add(1)
-        if(p2_score == max_score) answer.add(2)
-        if(p3_score == max_score) answer.add(3)
+        if(maxV==p1Score) answer.add(1)
+        if(maxV==p2Score) answer.add(2)
+        if(maxV==p3Score) answer.add(3)
         
         return answer.toIntArray()
     }
