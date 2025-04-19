@@ -1,43 +1,59 @@
 import java.util.*
 import kotlin.math.*
 
+val q = LinkedList<Int>()
+
+val removed = Array(101){Array(101){false}}
+
+val graph = Array(101){HashSet<Int>()}
+
 class Solution {
     fun solution(n: Int, wires: Array<IntArray>): Int {
-        var answer: Int = 101
-        val arr = Array<MutableList<Int>>(101){mutableListOf()}
+        var answer: Int = Int.MAX_VALUE
         
-        wires.forEach { wire ->
-            arr[wire[0]].add(wire[1])
-            arr[wire[1]].add(wire[0])
+        wires.forEach{
+            val v1 = it[0]
+            val v2 = it[1]
+            
+            graph[v1].add(v2)
+            graph[v2].add(v1)
         }
         
-        wires.forEach { wire ->
-            val nodeSize1 = bfs(arr, wire[0], wire[1], Array(n + 1) { false })
-            val nodeSize2 = bfs(arr, wire[1], wire[0], Array(n + 1) { false })
-            answer = min(answer, abs(nodeSize1 - nodeSize2))
+        for(i in 1..n){
+            graph[i].forEach{
+                removed[i][it] = true
+                removed[it][i] = true
+                val cnt1 = bfs(i)
+                val cnt2 = bfs(it)
+                answer = minOf(answer, abs(cnt1-cnt2))
+                removed[i][it] = false
+                removed[it][i] = false
+            }
         }
         
         return answer
     }
     
-    fun bfs(arr: Array<MutableList<Int>>, start: Int, except: Int, visited: Array<Boolean>): Int {
-        var cnt = 0
-        val q = LinkedList<Int>()
+    fun bfs(start:Int):Int{
+        val vis = Array(101){false}
         q.offer(start)
-        visited[start] = true
-        cnt++
-        while (!q.isEmpty()){
+        vis[start] = true
+        var cnt = 1
+        
+        while(!q.isEmpty()){
             val cur = q.poll()
-            arr[cur].forEach{
-                if (visited[it]) return@forEach
-                if(start==cur &&it == except) return@forEach
-                q.offer(it)
-                visited[it] = true
+            graph[cur].forEach{
+                if(removed[cur][it]) return@forEach
+                if(vis[it]) return@forEach
                 cnt++
+                q.offer(it)
+                vis[it] = true
             }
         }
-
         return cnt
     }
+    
+    
+    
+    
 }
-
