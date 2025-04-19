@@ -1,26 +1,25 @@
-import kotlin.math.*
-import java.util.*
+val vis = Array(9){false}
 
-var max_cnt = 0
-var vis = Array(9){false}
+var maxCnt = Int.MIN_VALUE
 
 class Solution {
     fun solution(k: Int, dungeons: Array<IntArray>): Int {
         var answer: Int = -1
         
-        dfs(k, 0, dungeons)
-        answer = max_cnt
+        dfs(dungeons, dungeons.size, k, 0)
         
-        return answer
+        return maxCnt
     }
     
-    fun dfs(k:Int, cnt:Int, dungeons: Array<IntArray>){
-        max_cnt = max(max_cnt, cnt)
+    fun dfs(dungeons: Array<IntArray>, n:Int, cur:Int, cnt:Int){
+        maxCnt = maxOf(maxCnt, cnt)
         
-        for(i in dungeons.indices){
-            if(k < dungeons[i][0] || vis[i]) continue
+        for(i in 0 until n){
+            if(vis[i]) continue
+            val dungeon = dungeons[i]
+            if(dungeon[0]>cur) continue
             vis[i] = true
-            dfs(k-dungeons[i][1], cnt+1, dungeons)
+            dfs(dungeons, n, cur-dungeon[1], cnt+1)
             vis[i] = false
         }
     }
