@@ -1,28 +1,30 @@
-import kotlin.math.*
+import java.util.*
 
-val wallets = mutableListOf<IntArray>()
+class Wallet(val w:Int, val h:Int)
+
+val wallets = mutableListOf<Wallet>()
 
 class Solution {
     fun solution(sizes: Array<IntArray>): Int {
         var answer: Int = 0
-        var max_w = 0
-        var max_h = 0
         
         sizes.forEach{
-            if(it[0]<it[1]){ // 세로가 더 긴 경우
-                it.reverse()
-                wallets.add(it)
-                return@forEach
-            }
-            wallets.add(it)
+            val w = it[0]
+            val h = it[1]
+            
+            if(w>h) wallets.add(Wallet(w, h))
+            else wallets.add(Wallet(h, w))
         }
+        
+        var w = 0
+        var h = 0
         
         for(wallet in wallets){
-            max_w = max(max_w, wallet[0])
-            max_h = max(max_h, wallet[1])
+            w = maxOf(w, wallet.w)
+            h = maxOf(h, wallet.h)
         }
         
-        answer = max_w * max_h
+        answer = w*h
         
         return answer
     }
