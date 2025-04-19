@@ -1,25 +1,27 @@
+import java.util.*
+
+val alphabets = listOf("A","E","I","O","U")
+var ans = 0
 var cnt = 0
-var flag = false
 
 class Solution {
     fun solution(word: String): Int {
-        var answer = 0
         
-        val words = listOf("A","E","I","O","U")
+        dfs(word, "", 5)
         
-        dfs(words, "", word)
-        
-        return cnt
+        return ans
     }
     
-    fun dfs(words:List<String>, str:String, word:String){
-        if(str == word) flag = true
-        if(str.length == 5) return
+    fun dfs(target:String, str:String, size:Int){
+        if(str==target){
+            ans = cnt
+            return
+        }
+        if(str.length == size) return
         
-        for(i in words){
-            if(flag) return
+        for(i in 0 until 5){
             cnt++
-            dfs(words, str.plus(i), word)
+            dfs(target, str+alphabets[i],size)
         }
     }
 }
