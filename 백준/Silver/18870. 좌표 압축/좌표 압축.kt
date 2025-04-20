@@ -1,31 +1,32 @@
-var nums = mutableListOf<Int>()
+import java.util.*
+
+val nums = mutableListOf<Int>()
+val distinctNums = mutableListOf<Int>()
 val sb = StringBuilder()
 
 fun main(): Unit = with(System.`in`.bufferedReader()) {
     val n = readLine().toInt()
-    val input = readLine().split(" ").map { it.toInt() }
-    nums.addAll(input)
-    nums.sort()
-    nums = nums.distinct().toMutableList()
+    nums.addAll(readLine().split(" ").map { it.toInt() })
+    distinctNums.addAll(nums.distinct())
+    distinctNums.sort()
 
-    input.forEach {
-        sb.append("${binarySearch(nums, it)} ")
+    nums.forEach{
+        sb.append("${binarySearch(it)} ")
     }
 
     print(sb)
 }
 
+fun binarySearch(target: Int): Int {
+    var s = 0
+    var e = distinctNums.size - 1
 
-fun binarySearch(arr: List<Int>, target: Int): Int {
-    var st = 0
-    var en = arr.size - 1
-
-    while (st < en) {
-        val mid = (st + en) / 2
-        if (target < arr[mid]) en = mid - 1
-        else if (arr[mid] < target) st = mid + 1
+    while (s < e) {
+        val mid = (s + e) / 2
+        if (target < distinctNums[mid]) e = mid - 1
+        else if (target > distinctNums[mid]) s = mid + 1
         else return mid
     }
 
-    return st
+    return s
 }
