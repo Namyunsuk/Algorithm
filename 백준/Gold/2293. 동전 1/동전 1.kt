@@ -1,22 +1,19 @@
+val coins = mutableListOf<Int>()
 val dp = Array(10002) { 0 }
-val units = Array(102) { 0 }
 
-fun main() {
-    val input = readln().split(" ").map { it.toInt() }
-    val n = input[0]
-    val k = input[1]
-
-    for (i in 0 until n) {
-        units[i] = readln().toInt()
+fun main(): Unit = with(System.`in`.bufferedReader()) {
+    val (n, k) = readLine().split(" ").map { it.toInt() }
+    repeat(n) {
+        coins.add(readLine().toInt())
     }
 
     dp[0] = 1
 
-    for (i in 0 until n) {
-        for (j in units[i]..k) {
-            dp[j] += dp[j - units[i]]
+    for (coin in coins) {
+        for (i in coin..k) {
+            dp[i] += dp[i - coin]
         }
     }
 
-    println(dp[k])
+    print(dp[k])
 }
