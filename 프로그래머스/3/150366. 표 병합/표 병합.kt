@@ -1,41 +1,128 @@
-data class Pos(val x:Int, val y:Int)
+val p = Array(2502){-1}
+val arr = Array(2502){""}
 
-val n = 52
-val graph = Array(n*n){"EMPTY"}
-val p = Array(n*n){-1}
 
 class Solution {
     fun solution(commands: Array<String>): Array<String> {
         var answer = mutableListOf<String>()
         
         for(command in commands){
-            val c = command.split(" ")
-            if(c[0] == "UPDATE"){
-                if(c.size==4){
-                    update(c[1].toInt(), c[2].toInt(), c[3])
-                }else{
-                    updateAll(c[1], c[2])
-                }
-            }else if(c[0] == "MERGE"){
-                merge(c[1].toInt(), c[2].toInt(), c[3].toInt(), c[4].toInt())
-            }else if(c[0] == "UNMERGE"){
-                unmerge(c[1].toInt(), c[2].toInt())
-            }else if(c[0] == "PRINT"){
-                answer.add(print(c[1].toInt(), c[2].toInt()))
+            val splitted = command.split(" ")
+            val op = splitted[0]
+            
+            print("${op} ")
+            if(op == "UPDATE" && splitted.size == 4){
+                val r = splitted[1].toInt()
+                val c = splitted[2].toInt()
+                val value = splitted[3]
+                
+                println("$r $c $value")
+                
+                updateCell(r,c,value)
+                
+            }else if(op == "UPDATE" && splitted.size == 3){
+                val value1 = splitted[1]
+                val value2 = splitted[2]
+                
+                println("$value1 $value2")
+                
+                updateValue(value1, value2)
+                
+            }else if(op == "MERGE"){
+                val r1 = splitted[1].toInt()
+                val c1 = splitted[2].toInt()
+                
+                val r2 = splitted[3].toInt()
+                val c2 = splitted[4].toInt()
+                
+                println("$r1 $c1 $r2 $c2")
+                
+                merge(r1,c1,r2,c2)
+            }else if(op == "UNMERGE"){
+                val r = splitted[1].toInt()
+                val c = splitted[2].toInt()
+                
+                println("$r $c")
+                
+                unMerge(r,c)
+            }else if(op=="PRINT"){
+                val r = splitted[1].toInt()
+                val c = splitted[2].toInt()
+                
+                println("$r $c")
+                
+                answer.add(print(r,c))
             }
+            printArr()
+            println()
         }
         
         return answer.toTypedArray()
     }
 }
 
-fun convert(r:Int, c:Int):Int{
-    return n*(r-1) + c
+fun printArr(){
+    for(i in 1..2){
+        for(j in 1..2){
+            val idx = posToIdx(i,j)
+            val pX = find(idx)
+            if(arr[pX] == "") print("EMPTY ")
+            else print("${arr[pX]} ")
+        }
+        println()
+    }
+}
+
+fun updateCell(r:Int, c:Int, value:String){
+    val idx = posToIdx(r,c)
+    val pX = find(idx)
+    arr[pX] = value
+}
+
+fun updateValue(value1:String, value2:String){
+    for(i in 1 .. 2501){
+        if(arr[i] == value1) arr[i] = value2
+    }
+}
+
+fun merge(r1:Int, c1:Int, r2:Int, c2:Int){
+    val idx1 = posToIdx(r1, c1)
+    val idx2 = posToIdx(r2, c2)
+    
+    union(idx1, idx2)
+}
+
+fun unMerge(r:Int, c:Int){
+    val idx = posToIdx(r,c)
+    val pX = find(idx)
+    val value = arr[pX]
+    
+    val tmp = mutableListOf<Int>()
+    
+    for(i in 1..2501){
+        if(find(i) == pX) tmp.add(i)
+    }
+    
+    tmp.forEach{
+        p[it] = -1
+        arr[it] = ""
+    }
+    
+    arr[idx] = value
+    
+}
+
+fun print(r:Int, c:Int):String{
+    val idx = posToIdx(r,c)
+    val pX = find(idx)
+    if(arr[pX] == "") return "EMPTY"
+    return arr[pX]
 }
 
 fun find(x:Int):Int{
-    if(p[x]<0) return x
+    if(p[x] < 0) return x
     p[x] = find(p[x])
+    
     return p[x]
 }
 
@@ -43,71 +130,26 @@ fun union(x:Int, y:Int):Boolean{
     val pX = find(x)
     val pY = find(y)
     
-    if(pX==pY) return false
-    p[pY] = pX
+    if(pX == pY) return false
+    if(arr[pX] == "" && arr[pY] == ""){
+        p[pY] = pX
+    } else if(arr[pX] == "" && arr[pY] != "") {
+        p[pX] = pY
+    } else if(arr[pX] != "" && arr[pY] == "") {
+        p[pY] = pX
+    } else {
+        p[pY] = pX
+    }
+    
     return true
 }
 
-fun update(r:Int, c:Int, value:String) {
-    val idx = convert(r,c)
-    val parent = find(idx)
-    graph[parent] = value
+fun posToIdx(r:Int, c:Int):Int{
+    return 50 * (r-1) + c
 }
 
-fun updateAll(value1:String, value2:String){
-    for(i in 1 until n*n){
-        if(graph[i]==value1){
-            graph[i] = value2            
-        }
-    }
-}
 
-fun merge(r1:Int, c1:Int, r2:Int, c2:Int){
-    val idx1 = convert(r1, c1)
-    val idx2 = convert(r2, c2)
-    val pX = find(idx1)
-    val pY = find(idx2)
-    
-    var value = "EMPTY"
-    if(graph[pX]!="EMPTY"&&graph[pY]!="EMPTY"){
-        value = graph[pX]
-    }else if(graph[pX]!="EMPTY"){
-        value = graph[pX]
-    }else if(graph[pY]!="EMPTY"){
-        value = graph[pY]
-    }
-    
-    if(pX==pY) return
-    
-    union(pX, pY)
-    
-    graph[pX] = value
-    graph[pY] = "EMPTY"
-}
 
-fun unmerge(r:Int, c:Int){
-    val idx = convert(r, c)
-    val parent = find(idx)
-    val value = graph[parent]
-    graph[parent] = "EMPTY"
-    
-    val tmp = mutableListOf<Int>()
-    for(i in 1 until n*n){
-        if(find(i)==parent){
-            tmp.add(i)
-        }
-    }
-    
-    tmp.forEach{it->
-        graph[it] = "EMPTY"
-        p[it] = -1
-    }
-    
-    graph[idx] = value
-}
 
-fun print(r:Int, c:Int):String{
-    val idx = convert(r,c)
-    val parent = find(idx)
-    return graph[parent]
-}
+
+
