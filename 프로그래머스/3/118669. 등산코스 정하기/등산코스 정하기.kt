@@ -1,76 +1,68 @@
 import java.util.*
 
 const val INF = 1e9.toInt()
-class Edge(val node:Int, val weight:Int)
-val graph = Array(50002){mutableListOf<Edge>()}
-val d = Array(50002){INF}
-val pq = PriorityQueue<Edge>{e1, e2 -> (e1.weight - e2.weight).toInt()}
+
+data class Node(val num:Int, val dist:Int)
+
+val graph = Array(50002){mutableListOf<Node>()}
+val d = Array(500002){INF}
 
 class Solution {
     fun solution(n: Int, paths: Array<IntArray>, gates: IntArray, summits: IntArray): IntArray {
-        var answer = mutableListOf<Int>()
+        val answer = mutableListOf<Int>()
         
         paths.forEach{ path->
-            val from = path[0]
-            val to = path[1]
-            val weight = path[2]
+            val i = path[0]
+            val j = path[1]
+            val w = path[2]
             
-            if(from in gates || to in summits){
-                graph[from].add(Edge(to, weight))    
-            }else if(from in summits || to in gates){
-                graph[to].add(Edge(from, weight))
-            }else{
-                graph[from].add(Edge(to, weight))
-                graph[to].add(Edge(from, weight))   
-            }
+            if(!graph[i].contains(Node(j,w))) graph[i].add(Node(j,w))
+            if(!graph[j].contains(Node(i,w))) graph[j].add(Node(i,w))
         }
         
-        gates.forEach{
-            d[it] = 0
-            pq.offer(Edge(it, 0))
-        }
+        dijkstra(gates, summits)
         
-        dijkstra()
-        
-        var summitNum = 0
+        var summit = 0
         var intensity = Int.MAX_VALUE
         
-        summits.sort()
-        summits.forEach{
-            if(d[it]<intensity){
-                summitNum = it
-                intensity  = d[it]
+        val s = summits.sorted()
+        
+        s.forEach{
+            if(d[it] < intensity){
+                intensity = d[it]
+                summit = it
             }
         }
         
-        answer.add(summitNum)
+        answer.add(summit)
         answer.add(intensity)
         
         return answer.toIntArray()
     }
-}
-
-fun dijkstra(){
-    while(!pq.isEmpty()){
-        val cur = pq.poll()
-        if(d[cur.node] != cur.weight) continue
-        graph[cur.node].forEach{
-            val weight = maxOf(it.weight, d[cur.node])
-            if(weight < d[it.node]){
-                d[it.node] = weight
-                pq.offer(Edge(it.node, weight))
+    
+    fun dijkstra(gates: IntArray, summits: IntArray){
+        val pq = PriorityQueue<Node>{n1,n2->(n1.dist - n2.dist).toInt()}
+        
+        
+        gates.forEach{
+            d[it] = 0
+            pq.offer(Node(it, 0))
+        }
+        
+        
+        while(!pq.isEmpty()){
+            val cur = pq.poll()
+            if(summits.contains(cur.num)) continue // 정상에서 더 이상 X
+            if(cur.dist != d[cur.num]) continue
+            
+            graph[cur.num].forEach{ node ->
+                val maxDist = maxOf(d[cur.num], node.dist)
+                
+                if(maxDist < d[node.num]){
+                    d[node.num] = maxDist
+                    pq.offer(Node(node.num, maxDist))
+                }
             }
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
