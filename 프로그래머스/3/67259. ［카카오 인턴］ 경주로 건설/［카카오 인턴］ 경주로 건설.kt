@@ -1,67 +1,55 @@
-class Pos(val x:Int, val y:Int, val dir:Pair<Int,Int> = 0 to 0, val cost:Int=0)
-val dx = listOf(-1,1,0,0)
-val dy = listOf(0,0,-1,1)
-val costs = Array(26){Array(26){Array(4){Int.MAX_VALUE}}}
-var minV = Int.MAX_VALUE
+import java.util.*
 
+data class Pos(val x:Int, val y:Int, val cost:Int=0, val dx:Int=-1, val dy:Int=-1)
+
+val graph = Array(27){Array(27){Array(4){Int.MAX_VALUE}}}
+val q = LinkedList<Pos>()
+
+val dx = listOf(0,0,-1,1)
+val dy = listOf(-1,1,0,0)
 
 class Solution {
     fun solution(board: Array<IntArray>): Int {
+        var answer = Int.MAX_VALUE
+        
         val n = board.size
         
-        dfs(n,Pos(0,0),board)
-        
-        return minV
-    }
-}
-
-fun dfs(n:Int, cur:Pos, board: Array<IntArray>){
-    if(cur.x==n-1&&cur.y==n-1){
-        if(minV>cur.cost) {
-            minV = cur.cost
+        for(i in 0 until 4){
+            graph[0][0][i] = 0
         }
-        return
+        
+        q.offer(Pos(0,0))
+        
+        while(!q.isEmpty()){
+            val cur = q.poll()
+            
+            for(i in 0 until 4){
+                val nx = cur.x + dx[i]
+                val ny = cur.y + dy[i]
+                val isVertical = isVertical(cur.dx, cur.dy,dx[i], dy[i])
+                
+                val cost = cur.cost + if(isVertical) 600 else 100
+                
+                
+                if(nx<0 || nx>=n || ny<0 || ny>=n) continue
+                if(board[nx][ny]==1) continue
+                if(graph[nx][ny][i] <= cost) continue
+                
+                q.offer(Pos(nx, ny, cost, dx[i], dy[i]))
+                graph[nx][ny][i]= cost
+            }
+        }
+        
+        for(i in 0 until 4){
+            answer = minOf(answer, graph[n-1][n-1][i])
+        }
+        
+        
+        return answer
     }
     
-    if(cur.cost>=minV) return
-    
-    for(i in 0..3){
-        val dir = dx[i] to dy[i]
-        val nx = cur.x + dx[i]
-        val ny = cur.y + dy[i]
-        if(nx<0||nx>=n||ny<0||ny>=n) continue
-        if(board[nx][ny]==1) continue
-        
-        var cost = cur.cost + 100
-        if(cur.x!=0 || cur.y!=0){
-            cost +=isVertical(cur.dir, dir)
-        }
-        val dirIdx = makeDir(dir)
-        if(costs[nx][ny][dirIdx]<=cost) continue
-        
-        costs[nx][ny][dirIdx] = cost
-        dfs(n,Pos(nx, ny, dir, cost),board)
+    fun isVertical(dx1:Int, dy1:Int, dx2:Int, dy2:Int):Boolean{
+        return (dx1*dx2 + dy1*dy2)== 0
     }
 }
-
-fun isVertical(dir1:Pair<Int, Int>, dir2:Pair<Int, Int>):Int{
-    return if((dir1.first*dir2.first+dir1.second*dir2.second ) == 0) 500 else 0
-}
-
-fun makeDir(dir:Pair<Int, Int>):Int{
-    return when(dir){
-        0 to 1 -> 0
-        1 to 0 -> 1
-        0 to -1 -> 2
-        else -> 3
-    }
-}
-
-
-
-
-
-
-
-
 
