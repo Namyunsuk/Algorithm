@@ -22,36 +22,6 @@ class Solution {
         findBlanks(n, game_board);        
         findPuzzles(n, table);
         
-        for(int i=0;i<blanks.size();i++){
-            int[][] blank = blanks.get(i);
-            int row = blank.length;
-            int col = blank[0].length;
-            
-            for(int j=0;j<row;j++){
-                for(int k=0;k<col;k++){
-                    System.out.printf("%d ",blank[j][k]);
-                }
-                System.out.println();
-            }
-            System.out.println();
-        }
-        
-        System.out.println("---------------------------------------------------------");
-        
-        for(int i=0;i<puzzles.size();i++){
-            int[][] puzzle = puzzles.get(i);
-            int row = puzzle.length;
-            int col = puzzle[0].length;
-            
-            for(int j=0;j<row;j++){
-                for(int k=0;k<col;k++){
-                    System.out.printf("%d ",puzzle[j][k]);
-                }
-                System.out.println();
-            }
-            System.out.println();
-        }
-        
         boolean[] vis = new boolean[blanks.size()];
         
         for(int i=0;i<puzzles.size();i++){
