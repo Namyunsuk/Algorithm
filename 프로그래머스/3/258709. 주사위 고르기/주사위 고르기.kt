@@ -1,109 +1,101 @@
-import kotlin.math.*
-
 val answer = mutableListOf<Int>()
-var maxCnt = 0
+var maxCnt = Int.MIN_VALUE
+val selectNumCases = mutableListOf<List<Int>>()
 
 class Solution {
     fun solution(dice: Array<IntArray>): IntArray {
         
-        
-        dfs(0,mutableListOf(), dice.size/2, dice)
-        
-        println(maxCnt)
-        
-        
+        sumDfs(mutableListOf(), dice.size/2)
+        dfs(0, mutableListOf(), dice.size, dice)
         
         return answer.map{it+1}.toIntArray()
     }
-    
-    fun dfs(index:Int, selected:MutableList<Int>, targetCnt:Int, dice: Array<IntArray>){
-        if(selected.size == targetCnt){
-            val dices = (0..(dice.size-1)).map{it}.toList()
-            val aDices = selected.toList()
-            val bDices = dices - aDices
-            
-            val aWinningCnt = calAwinningCnt(aDices, bDices, dice)
-            if(maxCnt < aWinningCnt){
-                maxCnt = aWinningCnt
-                answer.clear()
-                answer.addAll(selected.toList())
-            }
-            
-            return
-        }
+}
+
+fun sumDfs(selected:MutableList<Int>, n:Int){
+    if(selected.size == n){
+        selectNumCases.add(selected.toList())
         
-        for(i in index until dice.size){
-            selected.add(i)
-            dfs(i+1, selected, targetCnt, dice)
-            selected.removeAt(selected.size-1)
-        }
+        return
     }
     
-    fun calAwinningCnt(aDices:List<Int>, bDices:List<Int>, dice: Array<IntArray>):Int{
-        val aDice = mutableListOf<List<Int>>()
-        val bDice = mutableListOf<List<Int>>()
+    for(i in 0..5){
+        selected.add(i)
+        sumDfs(selected, n)
+        selected.removeAt(selected.size-1)
+    }
+}
+
+fun dfs(index:Int, aDices:MutableList<Int>, n:Int, dice: Array<IntArray>){
+    if(aDices.size == n/2){
+        val bDices = mutableListOf<Int>()
         
-        for(i in aDices){
-            aDice.add(dice[i].toList())
+        for(i in 0 until n){
+            if(!aDices.contains(i)) bDices.add(i)
         }
         
-        for(i in bDices){
-            bDice.add(dice[i].toList())
+        val cnt = calAwinningCount(aDices, bDices, dice)
+        if(cnt > maxCnt){
+            answer.clear()
+            answer.addAll(aDices.toList())
+            maxCnt = cnt
         }
         
-        val aCases = makeAllCases(aDice)
-        val bCases = makeAllCases(bDice)
-        
-        var aWinningCnt = 0
-        
-        for(c in aCases){
-            aWinningCnt+=lowerIdx(c, bCases)
-        }
-        
-        if(aDices == listOf(0,3)){
-            println(aDice)
-            println(aCases)
-        }
-        
-        return aWinningCnt
+        return
     }
     
-    
-    fun lowerIdx(target:Int, cases:List<Int>):Int{
-        var s = 0
-        var e = cases.size
+    for(i in index until n){
+        if(aDices.contains(i)) continue
+        aDices.add(i)
         
-        while(s<e){
-            val mid = (s+e)/2
-            if(cases[mid] >= target) e = mid
-            else s = mid+1
-        }
+        dfs(i+1, aDices, n, dice)
         
-        return s
+        aDices.remove(i)
     }
+}
+
+fun calAwinningCount(aDices:List<Int>, bDices:List<Int>, dice: Array<IntArray>):Int{
     
-    fun makeAllCases(dices:List<List<Int>>):List<Int>{
-        val n = dices.size
-        val cases = ((6.0).pow(n) - 1).toInt()
-        var sums = mutableListOf<Int>()
-        
-        for(i in 0 .. cases){
-            var case = i.toString(6)
-            var sum = 0
+    val aSums = mutableListOf<Int>()
+    val bSums = mutableListOf<Int>()
+    
+    for(case in selectNumCases){
+        var aSum = 0
+        var bSum = 0
+        for(i in 0 until case.size){
+            val aDiceIndex = aDices[i]
+            val bDiceIndex = bDices[i]
             
-            while(case.length < n){
-                case = "0" + case
-            }
+            val numIndex = case[i]
             
-            for(diceNum in 0 until dices.size){
-                val surfaceIndex = case[diceNum].code - '0'.code
-                sum += dices[diceNum][surfaceIndex]
-            }
-            sums.add(sum)
+            aSum += dice[aDiceIndex][numIndex]
+            bSum += dice[bDiceIndex][numIndex]
         }
-        
-        sums.sort()
-        
-        return sums
+        aSums.add(aSum)
+        bSums.add(bSum)
     }
+
+    bSums.sort()
+    
+    var cnt = 0
+    
+    for(sum in aSums){
+        cnt+=lower(bSums, sum)
+    }
+    
+    return cnt
+}
+
+fun lower(sums:List<Int>, target:Int):Int{
+    var s = 0
+    var e = sums.size
+    
+    while(s<e){
+        val mid = (s+e)/2
+        
+        if(sums[mid] >= target) e = mid
+        else s = mid+1
+    }
+    
+    return s
 }
