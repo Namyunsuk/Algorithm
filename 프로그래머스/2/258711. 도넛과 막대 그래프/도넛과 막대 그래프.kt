@@ -1,12 +1,13 @@
 import java.util.*
 
-val graph = Array(1000001){mutableListOf<Int>()}
-val inCount =  Array(1000001){0}
-val outCount =  Array(1000001){0}
-val vis = Array(1000001){false}
-val q = LinkedList<Int>()
-var created = 0
-var donut = 0
+val graph = Array(1_000_001){mutableListOf<Int>()}
+val vis = Array(1_000_001){false}
+val outCount = Array(1_000_001){0}
+val inCount = Array(1_000_001){0}
+
+var edgeNums = mutableSetOf<Int>()
+var createdEdge = 0
+var doughnut = 0
 var stick = 0
 var eight = 0
 
@@ -14,58 +15,82 @@ class Solution {
     fun solution(edges: Array<IntArray>): IntArray {
         var answer = mutableListOf<Int>()
         
-        edges.forEach{
-            val a = it[0]
-            val b = it[1]
-            graph[a].add(b)
-            outCount[a]++
-            inCount[b]++
+        edges.forEach{ edge->
+            val s = edge[0]
+            val e = edge[1]
+            
+            edgeNums.add(s)
+            edgeNums.add(e)
+            
+            graph[s].add(e)
+            outCount[s]++
+            inCount[e]++
         }
         
-        for(i in 1..1000000){   // 생성정점 찾기
-            if(inCount[i]==0&&outCount[i]>=2) {
-                created = i
-                vis[i] = true
+        // 생성한 정점 찾기
+        for(e in edgeNums){
+            if(outCount[e]>=2 && inCount[e]==0){
+                createdEdge = e
                 break
             }
         }
-
-        graph[created].forEach{ v ->
-            vis[v] = true
-            if(inCount[v]>=2 && outCount[v]>=2){ // 8자
-                eight++
-            }else{ // donut or stick
-                bfs(v)
-            }
+        
+        vis[createdEdge] = true
+        
+        graph[createdEdge].forEach{e->
+            checkGraph(e)
         }
         
-        answer.add(created)
-        answer.add(donut)
+        answer.add(createdEdge)
+        answer.add(doughnut)
         answer.add(stick)
         answer.add(eight)
+        
+        
+        
         return answer.toIntArray()
     }
 }
 
+fun checkGraph(s:Int){
+    val q = LinkedList<Int>()
+    q.offer(s)
+    vis[s] = true
+    
+    // 막대인 경우
+    if(outCount[s] == 0){
+        stick++
+        return
+    }
 
-fun bfs(start:Int){
-    q.offer(start)
+    if(inCount[s]==3 && outCount[s]==2){
+        eight++
+        return
+    }
+    
     while(!q.isEmpty()){
         val cur = q.poll()
-        if(outCount[cur]==0){
-            stick++
-            break
+        
+        graph[cur].forEach{ e->
+            // 8자
+            if(inCount[e]==2 && outCount[e]==2){
+                eight++
+                return
+            }
+            // 도넛
+            if(vis[e]){
+                doughnut++
+                return
+            }
+            
+            // 막대인 경우
+            if(outCount[e] == 0){
+                stick++
+                return
+            }
+            q.offer(e)
+            vis[e] = true
         }
-        val next = graph[cur].get(0)
-        if(inCount[next]>=2 && outCount[next]>=2){
-            eight++
-            break
-        }
-        if(vis[next]){
-            donut++
-            break
-        }
-        vis[next]=true
-        q.offer(next)
     }
+    
 }
