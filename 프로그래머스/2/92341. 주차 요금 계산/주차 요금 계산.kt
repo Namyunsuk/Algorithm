@@ -1,77 +1,65 @@
-import java.util.*
 import kotlin.math.*
 
-val inRecords = mutableMapOf<Int, MutableList<Int>>()
-val outRecords = mutableMapOf<Int, MutableList<Int>>()
-val totalTime = mutableMapOf<Int, Int>()
-val totalAmount = mutableMapOf<Int, Int>()
-var defaultTime = 0
-var defaultAmount = 0
-var unitTime = 0
-var unitAmount = 0
-val lastTime = 23*60+59
+val carNumbers = mutableSetOf<Int>()
+val inRecords = HashMap<Int, Int>()
+val timeRecords = HashMap<Int, Int>()
+val isOut = Array(10002){false}
+
 
 class Solution {
     fun solution(fees: IntArray, records: Array<String>): IntArray {
         var answer = mutableListOf<Int>()
+        val defaultTime = fees[0]
+        val defaultFee = fees[1]
+        val unitTime = fees[2]
+        val unitFee = fees[3]
         
-        defaultTime = fees[0]
-        defaultAmount = fees[1]
-        unitTime = fees[2]
-        unitAmount = fees[3]
-        
-        records.forEach{
-            val time = it.split(" ")[0]
-            val hour = time.split(":")[0].toInt()
-            val minute = time.split(":")[1].toInt()
-            val carNumber = it.split(" ")[1].toInt()
-            val state = it.split(" ")[2]
+        for(record in records){
+            val (t, carNum, type) = record.split(" ")
+            val time = toMinute(t)
+            val carNumber = carNum.toInt()
             
-            totalAmount[carNumber] = 0
-            
-            
-            if(state=="IN"){
-                if(inRecords[carNumber]==null){
-                    inRecords[carNumber] = mutableListOf<Int>()
-                }
-                inRecords[carNumber]!!.add(hour*60+minute)
+            if(type=="IN"){
+                carNumbers.add(carNumber)
+                
+                inRecords[carNumber] = time
+                isOut[carNumber] = false
             }else{
-                if(outRecords[carNumber]==null){
-                    outRecords[carNumber] = mutableListOf<Int>()
-                }
-                outRecords[carNumber]!!.add(hour*60+minute)
+                val diff = time - inRecords[carNumber]!!
+                timeRecords[carNumber] = (timeRecords[carNumber]?:0) + diff
+                
+                isOut[carNumber] = true
             }
         }
         
-        inRecords.keys.forEach{ carNumber->
-            inRecords[carNumber]!!.forEach{ inTime->
-                if(outRecords[carNumber]?.size?:0==0){ // 출차 기록X
-                    totalTime[carNumber] = totalTime[carNumber]?.plus(lastTime - inTime)?:(lastTime - inTime)
-                    return@forEach
-                }
-                val outTime = outRecords[carNumber]!!.get(0)
-                totalTime[carNumber] = totalTime[carNumber]?.plus(outTime - inTime)?:(outTime - inTime)
-                outRecords[carNumber]!!.removeFirst()
+        val sortedCarNumbers = carNumbers.toList().sorted()
+        
+        // 출차 안된 것들 계산
+        sortedCarNumbers.forEach{
+            if(!isOut[it]){
+                val diff = (23*60 + 59) - inRecords[it]!!
+                timeRecords[it] = (timeRecords[it]?:0) + diff
+                isOut[it] = true
             }
         }
         
-        totalTime.keys.forEach{ carNumber->
-            totalAmount[carNumber] = calAmount(totalTime[carNumber]!!)
+        // 요금 계산
+        sortedCarNumbers.forEach{
+            val diff = timeRecords[it]!!
+            if(diff <= defaultTime){
+                answer.add(defaultFee)
+                return@forEach
+            }
+            val fee = defaultFee + ceil((diff - defaultTime).toDouble() / unitTime).toInt() * unitFee
+            answer.add(fee)
         }
         
-        val sortedKeys = totalAmount.keys.toMutableList()
-        sortedKeys.sort()
-        
-        for(i in sortedKeys){
-            answer.add(totalAmount[i]!!)
-        }
         
         return answer.toIntArray()
     }
-    
-    fun calAmount(time:Int):Int{
-        val differ = time - defaultTime
-        if(differ<=0) return defaultAmount
-        return ceil(differ.toDouble() / unitTime).toInt() * unitAmount + defaultAmount
-    }
+}
+
+fun toMinute(time:String):Int{
+    val (h, m) = time.split(":").map{it.toInt()}
+    return h*60 + m
 }
