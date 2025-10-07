@@ -1,30 +1,33 @@
-import kotlin.math.sqrt
-import java.util.*
+import kotlin.math.*
 
 class Solution {
     fun solution(n: Int, k: Int): Int {
         var answer: Int = 0
         
-        val strNum = calculate(n, k)
-        val splittedNum = strNum.split("0").filter{
-            it.isNotBlank()
-        }.map{it.toLong()}
-        .filter{isPrime(it)}
+        val str = n.toString(k)
         
-        answer = splittedNum.size
+        var num = 0L
+        for(s in str){
+            if(s == '0'){
+                // 소수인지 판별
+                if(num!=0L && isPrime(num)) answer++
+                num = 0L
+                continue
+            }
+            num = num * 10L + (s.code - '0'.code).toLong()
+        }
+        
+        if(num!=0L && isPrime(num)) answer++
         
         return answer
     }
     
-    fun calculate(num : Int, k:Int):String{
-        return num.toString(k)
-    }
-    
-    fun isPrime(num: Long) : Boolean{
-        if(num==1L) return false
-        if(num==2L) return true
-        for(i in 3 .. sqrt(num.toDouble()).toInt()){
-            if(num%i == 0L) return false
+    fun isPrime(num:Long):Boolean{
+        if(num <= 1L) return false
+        if(num  == 2L || num == 3L) return true
+        val sqrtNum = sqrt(num.toDouble()).toLong()
+        for(i in 2 .. sqrtNum){
+            if(num % i == 0L) return false
         }
         return true
     }
