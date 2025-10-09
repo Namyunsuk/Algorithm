@@ -1,54 +1,62 @@
+import java.util.*
+
 val infoMap = HashMap<String, MutableList<Int>>()
 
 class Solution {
     fun solution(info: Array<String>, query: Array<String>): IntArray {
         var answer = mutableListOf<Int>()
         
-        info.forEach{ it->
-            makeInfoMap(it.split(" "), 0, "")
+        info.forEach{
+            dfs(it.split(" "), "", 0)
         }
         
         infoMap.values.map{it.sort()}
         
-        for(q in query){
-            val splittedQ = q.split(" ").filter{it != "and"}
-            val language = splittedQ[0]
-            val position = splittedQ[1]
-            val career = splittedQ[2]
-            val soulFood = splittedQ[3]
-            val score = splittedQ[4].toInt()
+        query.forEach{ q->
+            val sb = StringBuilder()
+            val splitted = q.split(" ").filter{it!="and"}
+            for(i in 0 until 4){
+                sb.append(splitted[i])
+            }
             
-            val key = language+position+career+soulFood
-            if(infoMap[key]==null) answer.add(0)
-            else{
-              answer.add(infoMap[key]!!.size - lowerIndex(infoMap[key]!!, score))
-            } 
+            val key = sb.toString()
+            
+            if(infoMap[key] == null){
+                answer.add(0)
+                return@forEach
+            }
+
+            answer.add(cal(infoMap[key]!!, splitted[4].toInt()))
         }
         
         return answer.toIntArray()
     }
     
-    fun lowerIndex(scores:List<Int>, target:Int):Int{
+    fun cal(arr:List<Int>, target:Int):Int{
         var s = 0
-        var e = scores.size
+        var e = arr.size
         
-        while(s<e){
-            val mid = (s+e)/2
-            if(scores[mid] >= target) e = mid
+        while(s < e){
+            val mid = (s + e)/2
+            
+            if(arr[mid] >= target) e = mid
             else s = mid+1
         }
         
-        return s
+        return arr.size - s
     }
     
-    fun makeInfoMap(info:List<String>, depth:Int, key:String){
-        if(depth ==4){
-            if(infoMap[key]==null) infoMap[key] = mutableListOf()
+    fun dfs(info:List<String>, key:String, depth:Int){
+        if(depth == 4){
+            if(infoMap[key] == null) infoMap[key] = mutableListOf()
             infoMap[key]!!.add(info[4].toInt())
+            
             return
         }
         
-        makeInfoMap(info, depth+1, key+"-")
-        makeInfoMap(info, depth+1, key+info[depth])
+        dfs(info, key + "-", depth+1)
+        dfs(info, key + info[depth], depth+1)
     }
 }
+
+
