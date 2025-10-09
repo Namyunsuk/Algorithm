@@ -1,56 +1,46 @@
 const val INF = 1e9.toInt()
-
-val graph = Array(202){Array(202){INF}}
+val graph = Array(203){Array(203){INF}}
 
 class Solution {
     fun solution(n: Int, s: Int, a: Int, b: Int, fares: Array<IntArray>): Int {
-        var answer: Int = Int.MAX_VALUE
+        var answer: Int = 0
         
-        fares.forEach{
-            val c = it[0]
-            val d = it[1]
-            val f = it[2]
+        fares.forEach{ fare->
+            val st = fare[0]
+            val e = fare[1]
+            val w = fare[2]
             
-            graph[c][d] = f
-            graph[d][c] = f
+            graph[st][e] = w
+            graph[e][st] = w
         }
         
-        for(i in 1..n){
+        for(i in 1 .. n){
             graph[i][i] = 0
         }
         
         for(v in 1 .. n){
-            for(s in 1..n){
-                for(e in 1..n){
-                    if(graph[s][e] > graph[s][v] + graph[v][e])
-                    graph[s][e] = graph[s][v] + graph[v][e]
+            for(s in 1 .. n){
+                for(e in 1 .. n){
+                    if(graph[s][v] == INF || graph[v][e] == INF) continue
+                    val totalWeight = graph[s][v] + graph[v][e]
+                    if(totalWeight < graph[s][e]) graph[s][e] = totalWeight
                 }
             }
         }
         
-
-
+        // 각자 갈 경우
+        answer = graph[s][a] + graph[s][b]
         
-        for(i in 1..n){
-            var sum = 0
-            if(graph[s][i]==INF) continue
-            sum+=graph[s][i]
-            sum+=graph[i][a]
-            sum+=graph[i][b]
-            
-            if(answer > sum) answer = sum
+        for(v in 1 .. n){
+            if(v == s) continue
+            if(graph[s][v]==INF || graph[v][a]==INF ||graph[v][b] == INF) continue
+            val totalWeight = graph[s][v] + graph[v][a] + graph[v][b]
+            if(totalWeight < answer) answer = totalWeight
         }
-        
-        
         
         return answer
     }
 }
-
-
-
-
-
 
 
 
