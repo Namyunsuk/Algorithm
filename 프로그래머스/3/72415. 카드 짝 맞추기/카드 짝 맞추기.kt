@@ -2,112 +2,115 @@ import java.util.*
 
 data class Pos(val x:Int, val y:Int, val cnt:Int = 0)
 
-val dx = listOf(-1, 0, 1, 0)
-val dy = listOf(0, 1, 0, -1)
+val cardTypes = mutableListOf<Int>()
+val cardPositions = Array(7){mutableListOf<Pos>()}
+val cases = mutableListOf<List<Pos>>()
 
-var cardTypes = mutableListOf<Int>()
+val n = 4
 
-var permutation = mutableListOf<List<Pos>>()
+val dx = listOf(-1,1,0,0)
+val dy = listOf(0,0,-1,1)
 
-val cache = Array(7){mutableListOf<Pos>()}
+var answer = Int.MAX_VALUE
 
 class Solution {
     fun solution(board: Array<IntArray>, r: Int, c: Int): Int {
-        var answer: Int = Int.MAX_VALUE
         
-        val newBoard = Array(4){Array(4){0}}
-        
-        for(i in 0 until 4){
-            for(j in 0 until 4){
-                if(board[i][j]!=0){
-                    cache[board[i][j]].add(Pos(i,j))
-                }
-                cardTypes.add(board[i][j])
+        for(i in 0 until n){
+            for(j in 0 until n){
+                val type = board[i][j]
+                if(type == 0) continue
+                if(!cardTypes.contains(type)) cardTypes.add(type)
+                cardPositions[type].add(Pos(i, j))
             }
         }
-        
-        cardTypes = cardTypes.distinct().toMutableList()
-        
-        cardTypes.remove(0)
         
         dfs(mutableListOf(), mutableListOf())
         
         
-        for(seq in permutation){
-            for(i in 0 until 4){
-                for(j in 0 until 4){
+        for(case in cases){
+            val newBoard = Array(n){Array(n){0}}
+            
+            for(i in 0 until n){
+                for(j in 0 until n){
                     newBoard[i][j] = board[i][j]
                 }
             }
             
-            var sum = 0
-            var curX = r
-            var curY = c
-            for(pos in seq){
-                sum+=bfs(newBoard, curX,curY, pos)+1
-                
-                newBoard[pos.x][pos.y] = 0
-                curX = pos.x
-                curY = pos.y
-            }
-            if(answer > sum){
-                answer = sum
-            } 
+            val cnt = bfs(case, Pos(r, c), newBoard)
+            if(cnt < answer) answer = cnt
         }
+        
         
         return answer
     }
-    
-    fun bfs(board:Array<Array<Int>>, x: Int, y: Int, des:Pos):Int{
+
+fun bfs(case:List<Pos>, cur:Pos, board: Array<Array<Int>>):Int{
+    var cnt = 0
+    for(i in case.indices){
         val q = LinkedList<Pos>()
-        val vis = Array(4){Array(4){false}}
-        
-        q.offer(Pos(x, y))
-        vis[x][y] = true
+        val vis = Array(n){Array(n){false}}
+        val des = case[i]
+        if(i==0){
+            q.offer(cur)
+            vis[cur.x][cur.y] = true
+        }else{
+            val curPos = case[i-1]
+            q.offer(curPos)
+            vis[curPos.x][curPos.y] = true
+        }
         
         while(!q.isEmpty()){
             val cur = q.poll()
             
-            if(cur.x==des.x && cur.y == des.y) return cur.cnt
+            if(des.x == cur.x && des.y == cur.y){
+                // 엔터 포함
+                cnt += cur.cnt + 1
+                board[cur.x][cur.y] = 0
+                break
+            }
             
             for(i in 0 until 4){
+                // 그냥 이동
                 var nx = cur.x + dx[i]
                 var ny = cur.y + dy[i]
                 
-                if(nx<0 || nx>=4 || ny<0 || ny>=4) continue
+                if(nx < 0 || nx >= n || ny < 0 || ny >= n) continue
                 if(!vis[nx][ny]){
-                    q.offer(Pos(nx, ny, cur.cnt+1))
+                    q.offer(Pos(nx, ny, cur.cnt + 1))
                     vis[nx][ny] = true
                 }
                 
-                // Ctrl + 이동
+                // ctrl 이동
                 while(true){
-                    if(nx + dx[i] < 0 || nx+dx[i] >= 4 || ny+dy[i]<0||ny+dy[i]>=4) break
+                    if(nx + dx[i] < 0 || nx + dx[i] >= n || ny + dy[i] < 0 || ny + dy[i] >= n) break
                     if(board[nx][ny]!=0) break
+                    
                     nx += dx[i]
                     ny += dy[i]
                 }
                 if(!vis[nx][ny]){
-                    q.offer(Pos(nx, ny, cur.cnt+1))
+                    q.offer(Pos(nx, ny, cur.cnt + 1))
                     vis[nx][ny] = true
                 }
-
             }
         }
-        return -1
     }
     
+    return cnt
+}
+
     fun dfs(selected:MutableList<Pos>, complete:MutableList<Int>){
         if(complete.size == cardTypes.size){
-            permutation.add(selected.toList())
+            cases.add(selected.toList())
             return
         }
         
         for(i in 0 until cardTypes.size){
             val cardType = cardTypes[i]
             if(complete.contains(cardType)) continue
-            val pos1 = cache[cardType][0]
-            val pos2 = cache[cardType][1]
+            val pos1 = cardPositions[cardType][0]
+            val pos2 = cardPositions[cardType][1]
             
             complete.add(cardType)
             
@@ -132,3 +135,5 @@ class Solution {
         }
     }
 }
+
+
