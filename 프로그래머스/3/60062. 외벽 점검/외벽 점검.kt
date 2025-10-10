@@ -1,82 +1,82 @@
-val distCases = mutableListOf<List<Int>>()
-val newWeaks = mutableListOf<Int>()
+val cases = mutableListOf<List<Int>>()
+var answer = Int.MAX_VALUE
+val newWeak = mutableListOf<Int>()
+var weakSize = 0
 val vis = Array(10){false}
 
 class Solution {
     fun solution(n: Int, weak: IntArray, dist: IntArray): Int {
-        var answer = Int.MAX_VALUE
-        val weakSize = weak.size
         
-        newWeaks.addAll(weak.toList())
-        for(i in 0 until weak.size-1){
-            newWeaks.add(weak[i]+n)
+        weakSize = weak.size
+        weak.forEach{
+            newWeak.add(it)
+            newWeak.add(it + n)
         }
         
-        dfs(mutableListOf(), dist)
+        newWeak.sort()
         
-        for(case in distCases){
-            val cnt = calMin(case, newWeaks, weak.size)
-            answer = minOf(answer, cnt)
-        }
+        dfs(mutableListOf(), dist, weak)
         
-        if(answer == Int.MAX_VALUE) answer = -1
+        if(answer == Int.MAX_VALUE) return -1
         
         return answer
     }
-}
-
-fun calMin(case:List<Int>, newWeak:List<Int>, weakSize:Int):Int{
-    var minCnt = Int.MAX_VALUE
     
-    for(startIndex in 0 until weakSize){
-        var caseIndex = 0
-        var weakIndex = startIndex
-        var isValid = true
-        
-        var cur = newWeak[weakIndex] + case[caseIndex]
-        while(weakIndex < startIndex + weakSize){
-            val weak = newWeak[weakIndex] 
-            if(cur >= weak){
-                weakIndex++
-                continue
+    fun isValid(dist:List<Int>, weak: IntArray):Boolean{
+        for(i in 0 until weakSize){
+            var valid = true
+            var curIndex = i
+            val endIndex = i + weakSize - 1
+            val end = newWeak[endIndex]
+            var distIndex = 0
+            
+            var cur = newWeak[curIndex] + dist[distIndex]
+            
+            while(curIndex <= endIndex){
+                val weak = newWeak[curIndex]
+                
+                if(cur >= weak){
+                    curIndex++
+                    continue
+                }
+                
+                distIndex++
+                
+                if(distIndex >= dist.size){
+                    valid = false
+                    break
+                }
+                cur = weak + dist[distIndex]
+                   
             }
-            caseIndex++
-            if(caseIndex == case.size) {
-                isValid = false
-                break
+            if(valid) return true
+        }
+        
+        return false
+    }
+    
+    fun dfs(selected:MutableList<Int>, dist: IntArray, weak: IntArray){
+        if(selected.size > 0){
+            if(isValid(selected.toList(), weak)){
+                if(selected.size < answer) answer = selected.size
             }
-            cur = weak + case[caseIndex]
         }
-        if(isValid){
-            val cnt = caseIndex+1
-            minCnt = minOf(minCnt, cnt)    
+        
+        if(selected.size == dist.size) return
+        
+        for(i in dist.indices){
+            if(vis[i]) continue
+            
+            vis[i] = true
+            selected.add(dist[i])
+            
+            dfs(selected, dist, weak)
+            
+            selected.removeAt(selected.size - 1)
+            vis[i] = false
         }
-    }
-    
-    return minCnt
-}
-
-fun dfs(selected:MutableList<Int>, dist: IntArray){
-    if(selected.size == dist.size){
-        distCases.add(selected.toList())
-        return
-    }
-    
-    for(i in 0 until dist.size){
-        if(vis[i]) continue
-        
-        vis[i] = true
-        selected.add(dist[i])
-        
-        dfs(selected, dist)
-        
-        selected.remove(dist[i])
-        vis[i] = false
     }
 }
-
-
-
 
 
 
